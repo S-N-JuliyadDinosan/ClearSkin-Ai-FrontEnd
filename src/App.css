@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+/* Common toast style */
+.custom-toast {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  animation: fly-in 0.5s ease-out;
+}
+
+/* Error toast */
+.custom-toast.toast-error {
+  background: #c62727 !important;
+  color: #ffffff !important;
+}
+
+/* Success toast */
+.custom-toast.toast-success {
+  background: #2cb67d !important;
+  color: #ffffff !important;
+}
+
+/* Toast body */
+.custom-toast-body {
+  font-size: 14px;
+  padding: 12px;
+}
+
+/* Fly-in animation */
+/* @keyframes fly-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+} */
