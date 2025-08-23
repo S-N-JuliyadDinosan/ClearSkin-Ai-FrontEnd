@@ -60,7 +60,7 @@ function Login() {
       <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-4 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="flex items-center space-x-4 " onClick={() => navigate('/')}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10 text-white"

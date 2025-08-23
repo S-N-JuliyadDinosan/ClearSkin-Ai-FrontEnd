@@ -21,23 +21,23 @@ const LandingPage = () => {
         {/* Navigation Links */}
         <nav className="hidden sm:inline-block">
           <ul className="flex gap-3 md:gap-5 lg:gap-10">
-            <li className="uppercase font-bold text-xs text-white cursor-pointer" onClick={() => redirect('/about')}>ABOUT</li>
-            <li className="uppercase font-bold text-xs text-white cursor-pointer" onClick={() => redirect('/services')}>SERVICES</li>
-            <li className="uppercase font-bold text-xs text-white cursor-pointer" onClick={() => redirect('/technologies')}>TECHNOLOGIES</li>
-            <li className="uppercase font-bold text-xs text-white cursor-pointer" onClick={() => redirect('/products')}>Products</li>
-            <li className="uppercase font-bold text-xs text-white cursor-pointer" onClick={() => redirect('/how-to')}>HOW TO!!!!</li>
+            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/about')}>ABOUT</li>
+            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/services')}>SERVICES</li>
+            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/technologies')}>TECHNOLOGIES</li>
+            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/products')}>Products</li>
+            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/how-to')}>HOW TO!!!!</li>
           </ul>
         </nav>
 
         <div className="hidden sm:flex gap-3 md:gap-5 lg:gap-9">
           <button
-            className="uppercase font-bold text-xs text-white border-2 border-white rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9"
+            className="uppercase font-bold text-s text-white border-2 border-white rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9"
             onClick={() => redirect('/login')}
           >
             LOGIN
           </button>
           <button
-            className="uppercase font-bold text-xs rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9 text-[#302c42] bg-gradient-to-r from-[#8176AF] to-[#C0B7E8]"
+            className="uppercase font-bold text-s rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9 text-[#302c42] bg-gradient-to-r from-[#8176AF] to-[#C0B7E8]"
             onClick={() => redirect('/register')}
           >
             REGISTER HERE
