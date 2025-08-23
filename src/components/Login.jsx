@@ -11,38 +11,31 @@ function Login() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
 
-
-    const handleLogin = async () => {
+  const handleLogin = async () => {
     try {
       const response = await axios.post('http://localhost:8082/api/v1/user/login', {
         email,
         password,
       });
 
-      console.log('Login successful:', response.data);
       setMessage(`Welcome, ${response.data.name || response.data.email}!`);
 
       toast.success(`Login successful!`, {
         position: 'top-right',
-        autoClose: 3000, // 3 seconds
+        autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         theme: 'colored',
-        className: 'custom-toast toast-success',
-        bodyClassName: 'custom-toast-body',
       });
 
-      // Delay navigation to allow toast to be visible
       setTimeout(() => {
         navigate('/');
-      }, 3000); // Delay by 3 seconds
-    } catch (error) {
-      console.error('Login failed:', error.response?.data || error.message);
-
+      }, 3000);
+    } catch{
       toast.error('Login failed. Please check your credentials.', {
         position: 'top-right',
         autoClose: 3000,
@@ -51,24 +44,51 @@ function Login() {
         pauseOnHover: true,
         draggable: true,
         theme: 'colored',
-        className: 'custom-toast toast-error',
-        bodyClassName: 'custom-toast-body',
       });
     }
   };
 
-
   return (
     <div
-      className="bg-cover bg-gradient-to-br from-[#7337FF] via-[#000000] to-[#0C7EA8]"
+      className="min-h-screen flex flex-col bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage:
           'url(https://res.cloudinary.com/dkt1t22qc/image/upload/v1742348950/Prestataires_Documents/fopt5esl9cgvlcawz1z4.jpg)',
       }}
     >
-      <div className="h-screen flex justify-center items-center backdrop-brightness-50">
+      {/* Navigation */}
+      <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center space-x-4 cursor-pointer" onClick={() => navigate('/')}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-10 w-10 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {/* Abstract face outline */}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10
+                     10-4.477 10-10S17.523 2 12 2zM12 7a1 1 0 100 2
+                     1 1 0 000-2zm0 4c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z"
+                />
+                {/* AI element - small circuit dot */}
+                <circle cx="18" cy="6" r="1" fill="currentColor" />
+              </svg>
+              <span className="text-2xl font-bold text-white">ClearSkinAI</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Login Form */}
+      <div className="flex-1 flex justify-center items-center backdrop-brightness-50">
         <div className="flex flex-col items-center space-y-8">
-          <div></div>
           <div
             className="rounded-[20px] w-80 p-8 bg-[#310D84]"
             style={{ boxShadow: '-6px 3px 20px 4px #0000007d' }}
@@ -95,14 +115,9 @@ function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-300"
                 >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
                 </button>
               </div>
-
             </div>
             <div className="mb-4">
               <span className="text-[#228CE0] text-[10px] ml-2 cursor-pointer">
@@ -127,6 +142,7 @@ function Login() {
           </div>
         </div>
       </div>
+
       <ToastContainer />
     </div>
   );

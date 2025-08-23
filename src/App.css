@@ -25,6 +25,30 @@
   padding: 12px;
 }
 
+/* Custom Gradient Loader */
+.loader {
+  width: 60px;
+  height: 60px;
+  background:
+    linear-gradient(to top, #7336FF 0%, #3269FF 100%) 0% 50% no-repeat,
+    linear-gradient(to top, #7336FF 0%, #3269FF 100%) 50% 50% no-repeat,
+    linear-gradient(to top, #7336FF 0%, #3269FF 100%) 100% 50% no-repeat;
+  background-size: 25% 100%;
+  animation: loaderAnim 2s infinite ease-in-out; /* slower & bigger bars */
+}
+
+
+@keyframes loaderAnim {
+  0%   {background-size: 20% 100%, 20% 100%, 20% 100%;}
+  33%  {background-size: 20% 20%, 20% 100%, 20% 100%;}
+  50%  {background-size: 20% 100%, 20% 20%, 20% 100%;}
+  66%  {background-size: 20% 100%, 20% 100%, 20% 20%;}
+  100% {background-size: 20% 100%, 20% 100%, 20% 100%;}
+}
+
+
+
+
 /* Fly-in animation */
 /* @keyframes fly-in {
   from {
