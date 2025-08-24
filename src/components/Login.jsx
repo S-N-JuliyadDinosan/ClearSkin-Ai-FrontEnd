@@ -5,13 +5,18 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../App.css';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { useRedirectWithLoader } from './useRedirectWithLoader';
+import Loader from './Loader';
+import jwt_decode from 'jwt-decode';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const [message] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+  const { loading: redirectLoading, redirect } = useRedirectWithLoader();
 
   const handleLogin = async () => {
     try {
@@ -20,32 +25,48 @@ function Login() {
         password,
       });
 
-      setMessage(`Welcome, ${response.data.name || response.data.email}!`);
+      const token = response.data.token;
+      localStorage.setItem('jwtToken', token);
+      localStorage.setItem('userEmail', response.data.email);
 
-      toast.success(`Login successful!`, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: 'colored',
-      });
+      // Decode JWT to get role
+      const decoded = jwt_decode(token); 
+      const role = decoded.role || 'USER';
+
+      console.log('Decoded JWT:', decoded);
+      console.log('Role:', role);
+
+      //setMessage(`Welcome, ${response.data.email}!`);
 
       setTimeout(() => {
-        navigate('/');
-      }, 3000);
-    } catch{
+        toast.success('Login successful!', {
+          position: 'top-right',
+          autoClose: 3000,
+          theme: 'colored',
+        });
+      }, 1500);
+
+      // Redirect after short delay
+      setTimeout(() => {
+        if (role === 'ADMIN') {
+          redirect('/admin-dashboard', 3000, () => navigate('/admin-dashboard'));
+        } else {
+          redirect('/user-dashboard', 3000, () => navigate('/user-dashboard'));
+        }
+      }, 1000);
+
+    } catch (err) {
+      console.error('Login error:', err);
       toast.error('Login failed. Please check your credentials.', {
         position: 'top-right',
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
         theme: 'colored',
       });
     }
+  };
+
+  const handleSignUpRedirect = () => {
+    redirect('/register', 2000, () => navigate('/register'));
   };
 
   return (
@@ -59,8 +80,11 @@ function Login() {
       {/* Navigation */}
       <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-4 " onClick={() => navigate('/')}>
+          <div className="flex justify-between h-16 items-center cursor-pointer">
+            <div
+              className="flex items-center space-x-4"
+              onClick={() => redirect('/', 1000, () => navigate('/'))}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10 text-white"
@@ -68,7 +92,6 @@ function Login() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                {/* Abstract face outline */}
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -77,7 +100,6 @@ function Login() {
                      10-4.477 10-10S17.523 2 12 2zM12 7a1 1 0 100 2
                      1 1 0 000-2zm0 4c-2.21 0-4 1.79-4 4h8c0-2.21-1.79-4-4-4z"
                 />
-                {/* AI element - small circuit dot */}
                 <circle cx="18" cy="6" r="1" fill="currentColor" />
               </svg>
               <span className="text-2xl font-bold text-white">ClearSkinAI</span>
@@ -88,7 +110,12 @@ function Login() {
 
       {/* Login Form */}
       <div className="flex-1 flex justify-center items-center backdrop-brightness-50">
-        <div className="flex flex-col items-center space-y-8">
+        {redirectLoading && <Loader />}
+        <div
+          className={`flex flex-col items-center space-y-8 ${
+            redirectLoading ? 'opacity-30 pointer-events-none' : ''
+          }`}
+        >
           <div
             className="rounded-[20px] w-80 p-8 bg-[#310D84]"
             style={{ boxShadow: '-6px 3px 20px 4px #0000007d' }}
@@ -115,7 +142,11 @@ function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-300"
                 >
-                  {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5" />
+                  ) : (
+                    <EyeIcon className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -137,7 +168,12 @@ function Login() {
             )}
             <div className="text-gray-300 text-center">
               Don&#x27;t have an account?
-              <span className="text-[#228CE0] cursor-pointer"> Sign up</span>
+              <span
+                className="text-[#228CE0] cursor-pointer ml-1"
+                onClick={handleSignUpRedirect}
+              >
+                Sign up
+              </span>
             </div>
           </div>
         </div>

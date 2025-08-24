@@ -9,6 +9,8 @@ import Product from './components/Product'
 import ProductManage from './components/ProductManage'
 import AddProduct from './components/AddProduct'
 import EditProduct from './components/EditProduct'
+import UserDashboard from './components/UserDashboard'
+import AdminDashboard from './components/AdminDashboard'
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/product-manage" element={<ProductManage />} />
         <Route path="/add-product" element={<AddProduct />} />
         <Route path="/update-product/:id" element={<EditProduct />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard  />} />
       </Routes>
     </Router>
   )

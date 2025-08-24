@@ -4,54 +4,76 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../App.css';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
+import { useRedirectWithLoader } from './useRedirectWithLoader';
+import Loader from './Loader';
 
 function RegisterUser() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [message, setMessage] = useState('');
-  const [bgLoaded, setBgLoaded] = useState(false); // New state for bg
+  const [password, setPassword] = useState('');
+  const [retypePassword, setRetypePassword] = useState('');
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRetypePassword, setShowRetypePassword] = useState(false);
   const navigate = useNavigate();
+  const { loading: redirectLoading, redirect } = useRedirectWithLoader();
 
   // Preload background image
   useEffect(() => {
     const img = new Image();
-    img.src = 'https://res.cloudinary.com/dkt1t22qc/image/upload/v1742357451/Prestataires_Documents/cynbxx4vxvgv2wrpakiq.jpg';
+    img.src =
+      'https://res.cloudinary.com/dkt1t22qc/image/upload/v1742357451/Prestataires_Documents/cynbxx4vxvgv2wrpakiq.jpg';
     img.onload = () => setBgLoaded(true);
   }, []);
 
-  const handleRegister = async () => {
-    try {
-      const response = await axios.post('http://localhost:8082/api/v1/user/register', { email, name });
+  const validateFields = () => {
+    const newErrors = {};
+    if (!name) newErrors.name = 'Field is empty';
+    if (!email) newErrors.email = 'Field is empty';
+    if (!password) newErrors.password = 'Field is empty';
+    if (!retypePassword) newErrors.retypePassword = 'Field is empty';
+    if (password && retypePassword && password !== retypePassword) {
+      newErrors.retypePassword = 'Passwords do not match';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-      setMessage(`Welcome, ${response.data.name || response.data.email}!`);
+  const handleRegister = async () => {
+    if (!validateFields()) return;
+
+    try {
+      const response = await axios.post('http://localhost:8082/api/v1/user/register', {
+        email,
+        name,
+        password,
+        retypePassword,
+      });
 
       toast.success('Registration successful!', {
         position: 'top-right',
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
         theme: 'colored',
       });
 
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+      redirect('/user-dashboard', 1000, () =>
+        navigate('/user-dashboard', { state: { user: response.data } })
+      );
     } catch {
       toast.error('Registration failed. Please try again.', {
         position: 'top-right',
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
         theme: 'colored',
       });
     }
   };
 
-  // Show loading screen until bg image is loaded
+  const handleLoginRedirect = () => {
+    redirect('/login', 1000, () => navigate('/login'));
+  };
+
   if (!bgLoaded) {
     return (
       <div className="h-screen w-screen flex justify-center items-center bg-gray-800 text-white">
@@ -71,7 +93,10 @@ function RegisterUser() {
       <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-4 cursor-pointer" onClick={() => navigate('/')}>
+            <div
+              className="flex items-center space-x-4 cursor-pointer"
+              onClick={() => redirect('/', 500, () => navigate('/'))}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-10 w-10 text-white"
@@ -97,7 +122,8 @@ function RegisterUser() {
 
       {/* Register Form */}
       <div className="flex-1 flex justify-center items-center backdrop-brightness-50">
-        <div className="flex flex-col items-center space-y-8">
+        {redirectLoading && <Loader />}
+        <div className={`flex flex-col items-center space-y-8 ${redirectLoading ? 'opacity-30 pointer-events-none' : ''}`}>
           <div
             className="rounded-[20px] w-80 p-8 bg-[#310D84]"
             style={{ boxShadow: '-6px 3px 20px 4px #0000007d' }}
@@ -109,32 +135,80 @@ function RegisterUser() {
                 placeholder="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-[#8777BA] w-full p-2.5 rounded-md placeholder:text-gray-300 shadow-md shadow-blue-950"
+                className={`bg-[#8777BA] w-full p-2.5 rounded-md placeholder:text-gray-300 shadow-md shadow-blue-950 ${
+                  errors.name ? 'border-2 border-red-500' : ''
+                }`}
               />
+              {errors.name && <div className="text-red-400 text-xs">{errors.name}</div>}
+
               <input
                 type="email"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-[#8777BA] w-full p-2.5 rounded-md placeholder:text-gray-300 shadow-md shadow-blue-950"
+                className={`bg-[#8777BA] w-full p-2.5 rounded-md placeholder:text-gray-300 shadow-md shadow-blue-950 ${
+                  errors.email ? 'border-2 border-red-500' : ''
+                }`}
               />
+              {errors.email && <div className="text-red-400 text-xs">{errors.email}</div>}
+
+              {/* Password with toggle */}
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`bg-[#8777BA] w-full p-2.5 rounded-md placeholder:text-gray-300 shadow-md shadow-blue-950 pr-10 ${
+                    errors.password ? 'border-2 border-red-500' : ''
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-300"
+                >
+                  {showPassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                </button>
+              </div>
+              {errors.password && <div className="text-red-400 text-xs">{errors.password}</div>}
+
+              {/* Retype Password with toggle */}
+              <div className="relative">
+                <input
+                  type={showRetypePassword ? 'text' : 'password'}
+                  placeholder="Retype Password"
+                  value={retypePassword}
+                  onChange={(e) => setRetypePassword(e.target.value)}
+                  className={`bg-[#8777BA] w-full p-2.5 rounded-md placeholder:text-gray-300 shadow-md shadow-blue-950 pr-10 ${
+                    errors.retypePassword ? 'border-2 border-red-500' : ''
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRetypePassword(!showRetypePassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-300"
+                >
+                  {showRetypePassword ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
+                </button>
+              </div>
+              {errors.retypePassword && <div className="text-red-400 text-xs">{errors.retypePassword}</div>}
             </div>
+
             <div className="flex justify-center mb-4 mt-6">
               <button
                 onClick={handleRegister}
                 className="h-10 w-full cursor-pointer text-white rounded-md bg-gradient-to-br from-[#7336FF] to-[#3269FF] shadow-md shadow-blue-950"
               >
-                Create User
+                Create Account
               </button>
             </div>
-            {message && (
-              <div className="text-sm text-center text-white mt-2">{message}</div>
-            )}
+
             <div className="text-gray-300 text-center">
               Already have an account?
               <span
                 className="text-[#228CE0] cursor-pointer ml-1"
-                onClick={() => navigate('/login')}
+                onClick={handleLoginRedirect}
               >
                 Login
               </span>
