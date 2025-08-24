@@ -1,20 +1,29 @@
-// useRedirectWithLoader.jsx
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export const useRedirectWithLoader = () => {
+export function useRedirectWithLoader() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const redirect = (path, delay = 1500) => {
+  /**
+   * Redirect or run a callback with loader
+   * @param {string|null} path - Path to redirect, or null if only running a callback
+   * @param {number} delay - Delay in ms before redirect/callback
+   * @param {function|null} callback - Function to run after delay
+   */
+  const redirect = (path = null, delay = 1200, callback = null) => {
     setLoading(true);
 
-    // Wait for delay, then navigate
     setTimeout(() => {
-      navigate(path, { state: { showLoader: true } }); // pass loader state to next page
-      setLoading(false); // hide loader in current page
+      if (path) {
+        navigate(path); // navigate to route
+      }
+      if (callback) {
+        callback(); // run pagination or other action
+      }
+      setLoading(false);
     }, delay);
   };
 
   return { loading, redirect };
-};
+}
