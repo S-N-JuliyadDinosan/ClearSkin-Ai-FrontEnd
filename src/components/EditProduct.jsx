@@ -25,7 +25,7 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:8082/api/v1/products/${id}`);
+        const response = await axios.get(`http://localhost:8000/api/v1/products/${id}`);
         setFormData(response.data);
       } catch (error) {
         console.error("❌ Failed to fetch product:", error);
@@ -54,7 +54,7 @@ const EditProduct = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.put(`http://localhost:8082/api/v1/products/${id}`, formData);
+      await axios.put(`http://localhost:8000/api/v1/products/${id}`, formData);
       toast.success("✅ Product updated successfully!", {
         position: "top-right",
         autoClose: 3000,

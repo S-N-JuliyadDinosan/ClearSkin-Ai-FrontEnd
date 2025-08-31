@@ -3,9 +3,38 @@ import faceClear from '../assets/FaceClear.png';
 import Loader from './Loader';
 import { useRedirectWithLoader } from './useRedirectWithLoader';
 import '../App.css'; 
+import jwt_decode from "jwt-decode";
 
 const LandingPage = () => {
   const { loading, redirect } = useRedirectWithLoader();
+
+  // ✅ Check if user logged in
+  const token = localStorage.getItem("jwtToken");
+  let role = null;
+
+  if (token) {
+    try {
+      const decoded = jwt_decode(token);
+      role = decoded.role || "USER";
+    } catch (e) {
+      console.error("Invalid token:", e);
+    }
+  }
+
+  // ✅ Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("jwtToken");
+    localStorage.removeItem("userEmail");
+    redirect("/", 1000, () => window.location.reload()); // refresh to reset UI
+  };
+
+  const handleDashboard = () => {
+    if (role === "ADMIN") {
+      redirect("/admin-dashboard", 1000);
+    } else {
+      redirect("/user-dashboard", 1000);
+    }
+  };
 
   return (
     <section className="bg-[#302c42] overflow-hidden pb-9 px-4 md:px-8 relative">
@@ -29,26 +58,46 @@ const LandingPage = () => {
           </ul>
         </nav>
 
+        {/* ✅ Auth buttons */}
         <div className="hidden sm:flex gap-3 md:gap-5 lg:gap-9">
-          <button
-            className="uppercase font-bold text-s text-white border-2 border-white rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9"
-            onClick={() => redirect('/login')}
-          >
-            LOGIN
-          </button>
-          <button
-            className="uppercase font-bold text-s rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9 text-[#302c42] bg-gradient-to-r from-[#8176AF] to-[#C0B7E8]"
-            onClick={() => redirect('/register')}
-          >
-            REGISTER HERE
-          </button>
+          {!token ? (
+            <>
+              <button
+                className="uppercase font-bold text-s text-white border-2 border-white rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9"
+                onClick={() => redirect('/login')}
+              >
+                LOGIN
+              </button>
+              <button
+                className="uppercase font-bold text-s rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9 text-[#302c42] bg-gradient-to-r from-[#8176AF] to-[#C0B7E8]"
+                onClick={() => redirect('/register')}
+              >
+                REGISTER HERE
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="uppercase font-bold text-s text-white border-2 border-white rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9"
+                onClick={handleDashboard}
+              >
+                Go to Dashboard
+              </button>
+              <button
+                className="uppercase font-bold text-s rounded-[40px] py-1 px-3 md:py-2 lg:py-4 md:px-4 lg:px-9 text-[#302c42] bg-gradient-to-r from-red-500 to-pink-500"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
 
         <button className="sm:hidden inline-block">
           <svg width="33" height="26" viewBox="0 0 33 26" fill="none"></svg>
         </button>
       </header>
-
+      
       {/* Hero Section */}
       <section className="relative flex flex-col-reverse md:flex-row mx-auto justify-between items-center gap-9 md:gap-4 max-w-[1300px] py-4 my-12">
         <div className="md:w-[520px] z-20 -translate-y-4">

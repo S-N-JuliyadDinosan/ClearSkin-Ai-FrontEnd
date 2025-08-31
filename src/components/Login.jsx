@@ -18,52 +18,51 @@ function Login() {
   const navigate = useNavigate();
   const { loading: redirectLoading, redirect } = useRedirectWithLoader();
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('http://localhost:8082/api/v1/user/login', {
-        email,
-        password,
-      });
+    const handleLogin = async () => {
+      try {
+        const response = await axios.post('http://localhost:8000/api/v1/user/login', {
+          email,
+          password,
+        });
 
-      const token = response.data.token;
-      localStorage.setItem('jwtToken', token);
-      localStorage.setItem('userEmail', response.data.email);
+        const token = response.data.token;
+        localStorage.setItem('jwtToken', token);
+        localStorage.setItem('userEmail', response.data.email);
 
-      // Decode JWT to get role
-      const decoded = jwt_decode(token); 
-      const role = decoded.role || 'USER';
+        const decoded = jwt_decode(token);
+        const role = decoded.role || 'USER';
 
-      console.log('Decoded JWT:', decoded);
-      console.log('Role:', role);
+        // ✅ check if redirect path exists
+        const redirectPath = localStorage.getItem("redirectPath");
 
-      //setMessage(`Welcome, ${response.data.email}!`);
-
-      setTimeout(() => {
         toast.success('Login successful!', {
+          position: 'top-right',
+          autoClose: 2000,
+          theme: 'colored',
+        });
+
+        setTimeout(() => {
+          if (redirectPath) {
+            localStorage.removeItem("redirectPath");
+            redirect(redirectPath, 2000, () => navigate(redirectPath));
+          } else {
+            if (role === 'ADMIN') {
+              redirect('/admin-dashboard', 2000, () => navigate('/admin-dashboard'));
+            } else {
+              redirect('/user-dashboard', 2000, () => navigate('/user-dashboard'));
+            }
+          }
+        }, 1000);
+
+      } catch (err) {
+        console.error('Login error:', err);
+        toast.error('Login failed. Please check your credentials.', {
           position: 'top-right',
           autoClose: 3000,
           theme: 'colored',
         });
-      }, 1500);
-
-      // Redirect after short delay
-      setTimeout(() => {
-        if (role === 'ADMIN') {
-          redirect('/admin-dashboard', 3000, () => navigate('/admin-dashboard'));
-        } else {
-          redirect('/user-dashboard', 3000, () => navigate('/user-dashboard'));
-        }
-      }, 1000);
-
-    } catch (err) {
-      console.error('Login error:', err);
-      toast.error('Login failed. Please check your credentials.', {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'colored',
-      });
-    }
-  };
+      }
+    };
 
   const handleSignUpRedirect = () => {
     redirect('/register', 2000, () => navigate('/register'));

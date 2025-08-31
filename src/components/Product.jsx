@@ -17,7 +17,7 @@ const Product = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:8082/api/v1/products?page=${pageNumber}&size=${size}`
+        `http://localhost:8000/api/v1/products?page=${pageNumber}&size=${size}`
       );
       setProducts(response.data.content);
       setTotalPages(response.data.totalPages);

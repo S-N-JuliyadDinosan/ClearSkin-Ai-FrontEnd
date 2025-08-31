@@ -18,41 +18,68 @@ const AddProduct = () => {
 
   const { loading: redirectLoading, redirect } = useRedirectWithLoader();
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Delete image handler
   const handleDeleteImage = () => {
     setFormData((prev) => ({ ...prev, productImageLink: "" }));
     toast.info("Image removed. Please add a new one.");
   };
 
-  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+
     try {
-      await axios.post("http://localhost:8082/api/v1/products", formData);
+      // Get token from localStorage
+      const token = localStorage.getItem("jwtToken");
+
+      if (!token) {
+        toast.error("You must be logged in as admin to add a product.", {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        setSaving(false);
+        return;
+      }
+
+      await axios.post(
+        "http://localhost:8000/api/v1/products",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // <-- send JWT token
+          },
+          withCredentials: true, // optional if your backend uses cookies
+        }
+      );
+
       toast.success("Product added successfully!", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
       });
 
-      // redirect with loader
       setTimeout(() => {
         redirect("/product-manage", 1200);
       }, 1200);
     } catch (error) {
       console.error("Failed to save product:", error);
-      toast.error("Failed to add product. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: "colored",
-      });
+      if (error.response) {
+        toast.error(
+          `Failed to add product: ${error.response.status} ${error.response.data}`,
+          { position: "top-right", autoClose: 3000, theme: "colored" }
+        );
+      } else {
+        toast.error(
+          "Network error or CORS issue. Check backend and headers.",
+          { position: "top-right", autoClose: 3000, theme: "colored" }
+        );
+      }
     } finally {
       setSaving(false);
     }
@@ -62,10 +89,7 @@ const AddProduct = () => {
 
   return (
     <div className="relative bg-gray-100 dark:bg-gray-900 min-h-screen flex justify-center items-center">
-      {/* Loader overlay */}
       {isLoading && <Loader />}
-
-      {/* Dim background when loading */}
       <div className={isLoading ? "opacity-30 pointer-events-none" : ""}>
         <div className="w-full max-w-3xl mx-auto p-8">
           <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md border dark:border-gray-700">
@@ -74,18 +98,13 @@ const AddProduct = () => {
             </h1>
 
             <form onSubmit={handleSubmit}>
-              {/* Product Info Section */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-700 dark:text-white mb-2">
                   Product Information
                 </h2>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-gray-700 dark:text-white mb-1"
-                    >
+                    <label htmlFor="name" className="block text-gray-700 dark:text-white mb-1">
                       Product Name
                     </label>
                     <input
@@ -98,10 +117,7 @@ const AddProduct = () => {
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="brand"
-                      className="block text-gray-700 dark:text-white mb-1"
-                    >
+                    <label htmlFor="brand" className="block text-gray-700 dark:text-white mb-1">
                       Brand
                     </label>
                     <input
@@ -116,10 +132,7 @@ const AddProduct = () => {
                 </div>
 
                 <div className="mt-4">
-                  <label
-                    htmlFor="productDescription"
-                    className="block text-gray-700 dark:text-white mb-1"
-                  >
+                  <label htmlFor="productDescription" className="block text-gray-700 dark:text-white mb-1">
                     Description
                   </label>
                   <input
@@ -132,12 +145,8 @@ const AddProduct = () => {
                   />
                 </div>
 
-                {/* IMAGE SECTION */}
                 <div className="mt-4">
-                  <label
-                    htmlFor="productImageLink"
-                    className="block text-gray-700 dark:text-white mb-1"
-                  >
+                  <label htmlFor="productImageLink" className="block text-gray-700 dark:text-white mb-1">
                     Product Image
                   </label>
                   {formData.productImageLink ? (
@@ -169,10 +178,7 @@ const AddProduct = () => {
                 </div>
 
                 <div className="mt-4">
-                  <label
-                    htmlFor="productLink"
-                    className="block text-gray-700 dark:text-white mb-1"
-                  >
+                  <label htmlFor="productLink" className="block text-gray-700 dark:text-white mb-1">
                     Product Link
                   </label>
                   <input
@@ -186,10 +192,7 @@ const AddProduct = () => {
                 </div>
 
                 <div className="mt-4">
-                  <label
-                    htmlFor="skinType"
-                    className="block text-gray-700 dark:text-white mb-1"
-                  >
+                  <label htmlFor="skinType" className="block text-gray-700 dark:text-white mb-1">
                     Skin Type
                   </label>
                   <input
@@ -204,7 +207,6 @@ const AddProduct = () => {
                 </div>
               </div>
 
-              {/* Action Button */}
               <div className="mt-8 flex justify-end">
                 <button
                   type="submit"
@@ -218,7 +220,6 @@ const AddProduct = () => {
           </div>
         </div>
       </div>
-
       <ToastContainer />
     </div>
   );

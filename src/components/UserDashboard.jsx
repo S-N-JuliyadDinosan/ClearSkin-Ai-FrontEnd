@@ -1,11 +1,23 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useRedirectWithLoader } from "./useRedirectWithLoader"; // custom hook
-import Loader from "./Loader"; // animated loader component
+import { useNavigate, Outlet, NavLink, useLocation } from "react-router-dom"; 
+import { useRedirectWithLoader } from "./useRedirectWithLoader"; 
+import Loader from "./Loader"; 
 
 const UserDashboard = () => {
   const navigate = useNavigate();
   const { redirect, loading: redirectLoading } = useRedirectWithLoader();
+  const location = useLocation();
+
+  // Function to get header title based on current route
+  const getHeaderTitle = () => {
+    if (location.pathname.includes("user-appointments")) return "Appointments";
+    if (location.pathname.includes("rooms")) return "Rooms";
+    if (location.pathname.includes("guests")) return "Guests";
+    if (location.pathname.includes("services")) return "Services";
+    if (location.pathname.includes("reports")) return "Reports";
+    if (location.pathname.includes("settings")) return "Settings";
+    return "Dashboard";
+  };
 
   return (
     <div className="relative flex h-screen overflow-hidden">
@@ -14,9 +26,11 @@ const UserDashboard = () => {
 
       {/* Main Dashboard Content (dimmed when loading) */}
       <div className={redirectLoading ? "opacity-30 pointer-events-none flex flex-1" : "flex flex-1"}>
+        
         {/* Sidebar */}
         <div className="hidden md:flex md:flex-shrink-0">
           <div className="flex flex-col w-64 bg-blue-950 text-white">
+            
             {/* Clickable Logo/Header */}
             <div
               className="flex items-center justify-center h-16 px-4 cursor-pointer bg-blue-900"
@@ -45,55 +59,88 @@ const UserDashboard = () => {
             {/* Sidebar Navigation */}
             <div className="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
               <nav className="flex-1 space-y-2">
-                <a
-                  href="#"
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-md bg-blue-700 text-white"
-                >
-                  <i className="fas fa-tachometer-alt mr-3"></i>
-                  Dashboard
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-700 text-white"
+                <NavLink
+                    to="/user-dashboard"
+                    end
+                    className={({ isActive }) =>
+                        `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                        isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
+                        }`
+                    }
+                    >
+                    <i className="fas fa-tachometer-alt mr-3"></i>
+                    Dashboard
+                </NavLink>
+                <NavLink
+                  to="/user-dashboard/user-appointments"
+                  className={({ isActive }) =>
+                    `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                      isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
+                    }`
+                  }
                 >
                   <i className="fas fa-calendar-check mr-3"></i>
-                  Bookings
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-700 text-white"
+                  Appointments
+                </NavLink>
+                <NavLink
+                  to="/user-dashboard/rooms"
+                  className={({ isActive }) =>
+                    `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                      isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
+                    }`
+                  }
                 >
                   <i className="fas fa-bed mr-3"></i>
                   Rooms
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-700 text-white"
+                </NavLink>
+
+                <NavLink
+                  to="/user-dashboard/guests"
+                  className={({ isActive }) =>
+                    `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                      isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
+                    }`
+                  }
                 >
                   <i className="fas fa-users mr-3"></i>
                   Guests
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-700 text-white"
+                </NavLink>
+
+                <NavLink
+                  to="/user-dashboard/services"
+                  className={({ isActive }) =>
+                    `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                      isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
+                    }`
+                  }
                 >
                   <i className="fas fa-concierge-bell mr-3"></i>
                   Services
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-700 text-white"
+                </NavLink>
+
+                <NavLink
+                  to="/user-dashboard/reports"
+                  className={({ isActive }) =>
+                    `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                      isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
+                    }`
+                  }
                 >
                   <i className="fas fa-chart-bar mr-3"></i>
                   Reports
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center px-4 py-2 text-sm font-medium rounded-md hover:bg-blue-700 text-white"
+                </NavLink>
+
+                <NavLink
+                  to="/user-dashboard/settings"
+                  className={({ isActive }) =>
+                    `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                      isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
+                    }`
+                  }
                 >
                   <i className="fas fa-cog mr-3"></i>
                   Settings
-                </a>
+                </NavLink>
               </nav>
             </div>
 
@@ -116,13 +163,14 @@ const UserDashboard = () => {
 
         {/* Main Content */}
         <div className="flex flex-col flex-1 overflow-hidden">
+          
           {/* Top Navigation */}
           <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
             <div className="flex items-center">
               <button className="md:hidden text-gray-500 focus:outline-none">
                 <i className="fas fa-bars"></i>
               </button>
-              <h1 className="text-xl font-semibold text-gray-800 ml-4">Dashboard</h1>
+              <h1 className="text-xl font-semibold text-gray-800 ml-4">{getHeaderTitle()}</h1>
             </div>
             <div className="flex items-center space-x-4">
               <button className="text-gray-500 focus:outline-none">
@@ -145,27 +193,7 @@ const UserDashboard = () => {
 
           {/* Main Content Area */}
           <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              {[
-                { icon: "fas fa-bed", title: "Total Rooms", value: "120", bg: "bg-blue-100", text: "text-blue-600" },
-                { icon: "fas fa-calendar-check", title: "Occupied", value: "84", bg: "bg-green-100", text: "text-green-600" },
-                { icon: "fas fa-calendar-day", title: "Check-ins Today", value: "12", bg: "bg-yellow-100", text: "text-yellow-600" },
-                { icon: "fas fa-calendar-times", title: "Check-outs Today", value: "8", bg: "bg-red-100", text: "text-red-600" },
-              ].map((card, index) => (
-                <div key={index} className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center">
-                    <div className={`p-3 rounded-full ${card.bg} ${card.text}`}>
-                      <i className={`${card.icon} text-xl`}></i>
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500">{card.title}</p>
-                      <p className="text-2xl font-semibold text-gray-800">{card.value}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Outlet />
           </main>
         </div>
       </div>

@@ -45,7 +45,7 @@ function RegisterUser() {
     if (!validateFields()) return;
 
     try {
-      const response = await axios.post('http://localhost:8082/api/v1/user/register', {
+      const response = await axios.post('http://localhost:8000/api/v1/user/register', {
         email,
         name,
         password,
@@ -58,8 +58,8 @@ function RegisterUser() {
         theme: 'colored',
       });
 
-      redirect('/user-dashboard', 1000, () =>
-        navigate('/user-dashboard', { state: { user: response.data } })
+      redirect('/login', 1000, () =>
+        navigate('/login', { state: { user: response.data } })
       );
     } catch {
       toast.error('Registration failed. Please try again.', {

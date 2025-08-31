@@ -6,23 +6,22 @@ export function useRedirectWithLoader() {
   const navigate = useNavigate();
 
   /**
-   * Redirect or run a callback with loader
-   * @param {string|null} path - Path to redirect, or null if only running a callback
-   * @param {number} delay - Delay in ms before redirect/callback
-   * @param {function|null} callback - Function to run after delay
+   * Smooth redirect or run callback
+   * @param {string|null} path - Path to redirect
+   * @param {number} delay - delay before executing
+   * @param {function|null} callback - optional callback
    */
-  const redirect = (path = null, delay = 1200, callback = null) => {
+  const redirect = (path = null, delay = 400, callback = null) => {
     setLoading(true);
 
+    // Start fade-out effect before redirect/callback
     setTimeout(() => {
-      if (path) {
-        navigate(path); // navigate to route
-      }
-      if (callback) {
-        callback(); // run pagination or other action
-      }
-      setLoading(false);
+      if (callback) callback(); // run action first (like fetch)
+      if (path) navigate(path); // navigate smoothly
     }, delay);
+
+    // Allow loader to fade out after short extra delay
+    setTimeout(() => setLoading(false), delay + 200);
   };
 
   return { loading, redirect };

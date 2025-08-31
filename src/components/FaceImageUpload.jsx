@@ -10,6 +10,7 @@ const FaceImageUpload = () => {
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   const { loading: redirectLoading, redirect } = useRedirectWithLoader();
@@ -21,7 +22,10 @@ const FaceImageUpload = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) setSelectedFile(file);
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleDragOver = (e) => {
@@ -35,80 +39,102 @@ const FaceImageUpload = () => {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file) setSelectedFile(file);
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
+    setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
-  const handleUploadSubmit = async () => {
-    if (!selectedFile) {
-      toast.error("Please select an image before uploading!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
-      return;
+const handleUploadSubmit = async () => {
+  if (!selectedFile) {
+    toast.error("Please select an image before uploading!", {
+      position: "top-right",
+      autoClose: 3000,
+      theme: "colored",
+    });
+    return;
+  }
+
+  try {
+    setUploading(true);
+
+    const token = localStorage.getItem("jwtToken");
+
+    // Get user email from token or storage
+    const userEmail = localStorage.getItem("userEmail");
+    if (!userEmail) {
+      throw new Error("User email not found in localStorage");
     }
 
+    // Fetch user by email → get userId
+    const userResponse = await axios.get(
+      `http://localhost:8000/api/v1/user/email?email=${userEmail}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const userId = userResponse.data?.userId;
+
+    if (!userId) {
+      throw new Error("Failed to fetch user ID");
+    }
+
+    // Create formData with file + userId
     const formData = new FormData();
     formData.append("file", selectedFile);
+    formData.append("userId", userId);
 
-    try {
-      setUploading(true);
-      const response = await axios.post(
-        "http://localhost:8082/api/v1/user/analysis",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+    // Call analysis API
+    const response = await axios.post(
+      "http://localhost:8000/api/v1/user/analysis",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-      const resultData = response.data;
-      setUploading(false);
-      
-      setTimeout(() => {
-        toast.success("Image analyzed successfully!", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "colored",
-        });
-      }, 500);
+    const resultData = response.data;
+    setUploading(false);
 
-      // redirect to result page
-      redirect("/face-result", 3000, () =>
-        navigate("/face-result", {
-          state: {
-            resultData,
-            imageUrl: URL.createObjectURL(selectedFile),
-          },
-        })
-      );
-    } catch (error) {
-      setUploading(false);
-      console.error(error);
-      toast.error(
-        "Failed to analyze image. " + (error.response?.data?.message || ""),
-        {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "colored",
-        }
-      );
-    }
-  };
+    setTimeout(() => {
+      toast.success("Image analyzed successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+        theme: "colored",
+      });
+    }, 500);
+
+    redirect("/face-result", 3000, () =>
+      navigate("/face-result", {
+        state: {
+          resultData,
+          imageUrl: previewUrl,
+        },
+      })
+    );
+  } catch (error) {
+    setUploading(false);
+    console.error(error);
+    toast.error(
+      "Failed to analyze image. " + (error.response?.data?.message || ""),
+      {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      }
+    );
+  }
+};
+
 
   const isLoading = uploading || redirectLoading;
 
@@ -121,8 +147,8 @@ const FaceImageUpload = () => {
             <div
               className="flex items-center space-x-4 cursor-pointer"
               onClick={() => {
-                  redirect("/", 1000, () => navigate("/"));
-                }}
+                redirect("/", 1000, () => navigate("/"));
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -177,43 +203,50 @@ const FaceImageUpload = () => {
               onChange={handleFileChange}
               disabled={isLoading}
             />
-            <svg
-              className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-300 mb-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M16 17l-4 4m0 0l-4-4m4 4V3"
-              />
-            </svg>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {selectedFile ? (
-                <>
-                  Selected file: {selectedFile.name}{" "}
-                  <button
-                    onClick={handleRemoveFile}
-                    className="ml-2 text-red-500 underline text-xs"
-                    disabled={isLoading}
-                  >
-                    Remove
-                  </button>
-                </>
-              ) : (
-                <>
+
+            {previewUrl ? (
+              <div>
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="mx-auto max-h-60 rounded-md shadow-md mb-4"
+                />
+                <button
+                  onClick={handleRemoveFile}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <>
+                <svg
+                  className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-300 mb-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M16 17l-4 4m0 0l-4-4m4 4V3"
+                  />
+                </svg>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Drag & Drop your files here or{" "}
-                  <span
+                  <button
+                    type="button"
                     onClick={handleUploadClick}
-                    className="cursor-pointer text-blue-500 hover:underline"
+                    disabled={isLoading}
+                    className="ml-2 px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition"
                   >
-                    browse
-                  </span>
-                </>
-              )}
-            </p>
+                    Browse
+                  </button>
+                </p>
+              </>
+            )}
           </div>
 
           <button
