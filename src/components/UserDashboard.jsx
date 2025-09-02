@@ -83,7 +83,7 @@ const UserDashboard = () => {
                   Appointments
                 </NavLink>
                 <NavLink
-                  to="/user-dashboard/rooms"
+                  to="/user-dashboard/analysis-history/user"
                   className={({ isActive }) =>
                     `flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                       isActive ? "bg-blue-700 text-white" : "hover:bg-blue-700 text-white"
@@ -91,9 +91,8 @@ const UserDashboard = () => {
                   }
                 >
                   <i className="fas fa-bed mr-3"></i>
-                  Rooms
+                  My Analysis History
                 </NavLink>
-
                 <NavLink
                   to="/user-dashboard/guests"
                   className={({ isActive }) =>

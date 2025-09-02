@@ -114,27 +114,47 @@ const LandingPage = () => {
           </p>
 
           <div className="flex gap-6 sm:gap-10">
-            <button
-              className="uppercase font-bold text-xs rounded-[40px] py-2 lg:py-4 px-4 lg:px-9 text-[#302c42] bg-gradient-to-r from-[#8176AF] to-[#C0B7E8] transform transition-transform duration-300 hover:scale-110"
-              onClick={() => redirect('/face-upload', 1500)}
-            >
-              AI Skin Analysis
-            </button>
+              <button
+                className="uppercase font-bold text-lg md:text-xl rounded-[60px] py-4 px-12
+                          bg-gradient-to-r from-[#A398F0] to-[#C0B7E8] text-[#1F1F1F]
+                          shadow-[0_8px_20px_rgba(0,0,0,0.25)] 
+                          hover:shadow-[0_12px_30px_rgba(163,152,240,0.7)]
+                          hover:translate-y-[-3px] transition-all duration-400 ease-out
+                          ring-1 ring-white/20 hover:ring-white/40
+                          animate-glow"
+                onClick={() => redirect('/face-upload', 1500)}
+              >
+                AI Skin Analysis
+              </button>
 
-            <div className="flex space-x-1 text-[#C0B7E8] font-bold text-4xl">
-              <span className="animate-[arrowBlink_1.5s_linear_infinite]">&lt;</span>
-              <span className="animate-[arrowBlink_1.5s_linear_infinite_0.3s]">&lt;</span>
-              <span className="animate-[arrowBlink_1.5s_linear_infinite_0.6s]">&lt;</span>
+              <div className="flex space-x-1 text-[#C0B7E8] font-bold text-6xl">
+                <span className="animate-[arrowBlink_1.5s_linear_infinite]">&lt;</span>
+                <span className="animate-[arrowBlink_1.5s_linear_infinite_0.3s]">&lt;</span>
+                <span className="animate-[arrowBlink_1.5s_linear_infinite_0.6s]">&lt;</span>
+              </div>
+
+              <style jsx>{`
+                @keyframes arrowBlink {
+                  0% { opacity: 0.2; transform: translateX(0); }
+                  50% { opacity: 1; transform: translateX(-6px); }
+                  100% { opacity: 0.2; transform: translateX(0); }
+                }
+
+                @keyframes glow {
+                  0%, 100% {
+                    box-shadow: 0 0 15px rgba(163,152,240,0.6), 0 0 30px rgba(163,152,240,0.3);
+                  }
+                  50% {
+                    box-shadow: 0 0 25px rgba(163,152,240,0.9), 0 0 50px rgba(163,152,240,0.5);
+                  }
+                }
+
+                .animate-glow {
+                  animation: glow 2s infinite alternate;
+                }
+              `}</style>
             </div>
 
-            <style jsx>{`
-              @keyframes arrowBlink {
-                0% { opacity: 0.2; transform: translateX(0); }
-                50% { opacity: 1; transform: translateX(-6px); }
-                100% { opacity: 0.2; transform: translateX(0); }
-              }
-            `}</style>
-          </div>
         </div>
 
         <div className="p-4 z-20 bg-black rounded-[100px] md:rounded-bl-[200px] lg:rounded-bl-[250px] bg-opacity-20 flex items-center justify-center overflow-hidden h-[550px] max-w-[500px] -translate-y-3">
@@ -152,7 +172,7 @@ const LandingPage = () => {
           <svg width="42" height="63" viewBox="0 0 42 63" fill="none"></svg>
           <div className="text-white">
             <h2 className="hidden sm:inline-block text-2xl font-bold">Pay Us a Visit</h2>
-            <p className="text-sm mt-3">Union St, Seattle, WA 98101, United States</p>
+            <p className="text-sm mt-3">Jaffna 4000, Srilanka</p>
           </div>
         </div>
 
@@ -161,7 +181,7 @@ const LandingPage = () => {
           <svg width="51" height="51" viewBox="0 0 51 51" fill="none"></svg>
           <div className="text-white">
             <h2 className="text-2xl font-bold">Give Us a Call</h2>
-            <p className="text-sm mt-3">(110) 1111-1010</p>
+            <p className="text-sm mt-3">(+94) 76-647-6294</p>
           </div>
         </div>
 
@@ -170,7 +190,7 @@ const LandingPage = () => {
           <svg width="55" height="45" viewBox="0 0 55 45" fill="none"></svg>
           <div className="text-white">
             <h2 className="text-2xl font-bold">Send Us a Message</h2>
-            <p className="text-sm mt-3">Contact@HydraVTech.com</p>
+            <p className="text-sm mt-3">Contact : juliyad.samuel@gmail.com</p>
           </div>
         </div>
       </div>
