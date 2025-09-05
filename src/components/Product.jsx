@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRedirectWithLoader } from "./useRedirectWithLoader";
 import Loader from "./Loader"; // Animated loader
+import { ArrowLeft } from "lucide-react"; // Back icon
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -56,8 +57,19 @@ const Product = () => {
 
       {/* Dim content when loader is active */}
       <div className={isLoading ? "opacity-30 pointer-events-none" : ""}>
+        {/* Back Button */}
+        <div className="absolute top-20 left-6 z-35">
+          <button
+            onClick={() => redirect("/")}
+            className="flex items-center bg-white/80 dark:bg-gray-800/80 px-3 py-2 rounded-full shadow hover:shadow-md text-gray-700 dark:text-white font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition transform hover:scale-105"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back
+          </button>
+        </div>
+
         {/* Navigation */}
-        <nav className="bg-white/25 sticky top-0 z-50 px-4 sm:px-6 lg:px-8 py-4 backdrop-blur-lg">
+        <nav className="bg-white/25 sticky top-0 z-40 px-4 sm:px-6 lg:px-8 py-4 backdrop-blur-lg">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div
               className="flex items-center space-x-4 cursor-pointer"
@@ -81,14 +93,7 @@ const Product = () => {
                 <circle cx="18" cy="6" r="1" fill="currentColor" />
               </svg>
               <span className="text-2xl font-bold text-white">ClearSkinAI</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary-400 transition-all"
-              />
-            </div>
+            </div> 
           </div>
         </nav>
 

@@ -3,13 +3,14 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
-import { useRedirectWithLoader } from "./useRedirectWithLoader"; // ✅ added
+import { useRedirectWithLoader } from "./useRedirectWithLoader";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ArrowLeft } from "lucide-react"; // Back icon
 
 const BookAppointmentByUser = () => {
   const navigate = useNavigate();
-  const { loading: redirectLoading } = useRedirectWithLoader(); // ✅ added
+  const { loading: redirectLoading, redirect } = useRedirectWithLoader();
   const [formData, setFormData] = useState({
     userEmail: "",
     userName: "",
@@ -47,7 +48,7 @@ const BookAppointmentByUser = () => {
         });
         const doctorNames = docRes.data.content.map((doc) => doc.name);
 
-        // Artificial delay to keep loader visible like UserAppointments
+        // Artificial delay for loader
         setTimeout(() => {
           setFormData({ userEmail, userName, date: "", doctorName: "" });
           setDoctors(doctorNames);
@@ -71,14 +72,12 @@ const BookAppointmentByUser = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("jwtToken");
-      await axios.post(
-        "http://localhost:8000/api/v1/appointments",
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.post("http://localhost:8000/api/v1/appointments", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       toast.success("Appointment booked successfully!", { autoClose: 3000, theme: "colored" });
-      setTimeout(() => navigate("/user-dashboard/user-appointments"), 1500); // ✅ timeout like before
+      setTimeout(() => navigate("/user-dashboard/user-appointments"), 1500);
     } catch (err) {
       console.error(err);
       const msg =
@@ -87,14 +86,25 @@ const BookAppointmentByUser = () => {
     }
   };
 
-  if (loading || redirectLoading) return <Loader />; // ✅ use loader for redirect too
+  if (loading || redirectLoading) return <Loader />;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="relative max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
+      {/* Back Button */}
+      <div className="absolute top-3 left-1 z-50">
+        <button
+          onClick={() => redirect("/user-dashboard/user-appointments")}
+          className="flex items-center bg-white/80 dark:bg-gray-800/80 px-3 py-2 rounded-full shadow hover:shadow-md text-gray-700 dark:text-white font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition transform hover:scale-105"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back
+        </button>
+      </div>
+
       <ToastContainer />
       <div className="text-2xl py-4 px-6 bg-gray-900 text-white text-center font-bold uppercase">
-        Book an Appointment
+        Book Appointment
       </div>
       <form className="py-4 px-6" onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -152,7 +162,9 @@ const BookAppointmentByUser = () => {
           >
             <option value="">Select doctor</option>
             {doctors.map((docName, idx) => (
-              <option key={idx} value={docName}>{docName}</option>
+              <option key={idx} value={docName}>
+                {docName}
+              </option>
             ))}
           </select>
         </div>

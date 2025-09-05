@@ -18,51 +18,51 @@ function Login() {
   const navigate = useNavigate();
   const { loading: redirectLoading, redirect } = useRedirectWithLoader();
 
-    const handleLogin = async () => {
-      try {
-        const response = await axios.post('http://localhost:8000/api/v1/user/login', {
-          email,
-          password,
-        });
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:8000/api/v1/user/login', {
+        email,
+        password,
+      });
 
-        const token = response.data.token;
-        localStorage.setItem('jwtToken', token);
-        localStorage.setItem('userEmail', response.data.email);
+      const token = response.data.token;
+      localStorage.setItem('jwtToken', token);
+      localStorage.setItem('userEmail', response.data.email);
 
-        const decoded = jwt_decode(token);
-        const role = decoded.role || 'USER';
+      const decoded = jwt_decode(token);
+      const role = decoded.role || 'USER';
 
-        // ✅ check if redirect path exists
-        const redirectPath = localStorage.getItem("redirectPath");
+      // ✅ check if redirect path exists
+      const redirectPath = localStorage.getItem("redirectPath");
 
-        toast.success('Login successful!', {
-          position: 'top-right',
-          autoClose: 2000,
-          theme: 'colored',
-        });
+      toast.success('Login successful!', {
+        position: 'top-right',
+        autoClose: 2000,
+        theme: 'colored',
+      });
 
-        setTimeout(() => {
-          if (redirectPath) {
-            localStorage.removeItem("redirectPath");
-            redirect(redirectPath, 2000, () => navigate(redirectPath));
+      setTimeout(() => {
+        if (redirectPath) {
+          localStorage.removeItem("redirectPath");
+          redirect(redirectPath, 2000, () => navigate(redirectPath));
+        } else {
+          if (role === 'ADMIN') {
+            redirect('/admin-dashboard', 2000, () => navigate('/admin-dashboard'));
           } else {
-            if (role === 'ADMIN') {
-              redirect('/admin-dashboard', 2000, () => navigate('/admin-dashboard'));
-            } else {
-              redirect('/user-dashboard', 2000, () => navigate('/user-dashboard'));
-            }
+            redirect('/user-dashboard', 2000, () => navigate('/user-dashboard'));
           }
-        }, 1000);
+        }
+      }, 1000);
 
-      } catch (err) {
-        console.error('Login error:', err);
-        toast.error('Login failed. Please check your credentials.', {
-          position: 'top-right',
-          autoClose: 3000,
-          theme: 'colored',
-        });
-      }
-    };
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('Login failed. Please check your credentials.', {
+        position: 'top-right',
+        autoClose: 3000,
+        theme: 'colored',
+      });
+    }
+  };
 
   const handleSignUpRedirect = () => {
     redirect('/register', 2000, () => navigate('/register'));
@@ -120,7 +120,15 @@ function Login() {
             style={{ boxShadow: '-6px 3px 20px 4px #0000007d' }}
           >
             <h1 className="text-white text-3xl font-bold mb-4">Login</h1>
-            <div className="space-y-4">
+
+            {/* ✅ Wrap inputs in a form so Enter key works */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+              className="space-y-4"
+            >
               <input
                 type="text"
                 placeholder="Email address"
@@ -148,23 +156,27 @@ function Login() {
                   )}
                 </button>
               </div>
-            </div>
-            <div className="mb-4">
-              <span className="text-[#228CE0] text-[10px] ml-2 cursor-pointer">
-                Forget Password?
-              </span>
-            </div>
-            <div className="flex justify-center mb-4">
-              <button
-                onClick={handleLogin}
-                className="h-10 w-full cursor-pointer text-white rounded-md bg-gradient-to-br from-[#7336FF] to-[#3269FF] shadow-md shadow-blue-950"
-              >
-                Sign In
-              </button>
-            </div>
+
+              <div className="mb-4">
+                <span className="text-[#228CE0] text-[10px] ml-2 cursor-pointer">
+                  Forget Password?
+                </span>
+              </div>
+
+              <div className="flex justify-center mb-4">
+                <button
+                  type="submit" // ✅ Enter key triggers submit
+                  className="h-10 w-full cursor-pointer text-white rounded-md bg-gradient-to-br from-[#7336FF] to-[#3269FF] shadow-md shadow-blue-950"
+                >
+                  Sign In
+                </button>
+              </div>
+            </form>
+
             {message && (
               <div className="text-sm text-center text-white mt-2">{message}</div>
             )}
+
             <div className="text-gray-300 text-center">
               Don&#x27;t have an account?
               <span

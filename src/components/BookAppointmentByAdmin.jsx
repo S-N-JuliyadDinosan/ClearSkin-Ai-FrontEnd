@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import jwtDecode from "jwt-decode";
-import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRedirectWithLoader } from "./useRedirectWithLoader";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react"; // back icon
 
 const statuses = ["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED", "RESCHEDULED"];
 
 const BookAppointmentByAdmin = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     userEmail: "",
     userName: "",
@@ -21,17 +21,31 @@ const BookAppointmentByAdmin = () => {
   const [doctors, setDoctors] = useState([]);
   const [error, setError] = useState("");
 
+  const { redirect, loading: redirectLoading, setLoading: setRedirectLoading } = useRedirectWithLoader();
+  const navigate = useNavigate();
+
+  // Show loader on browser back/forward navigation
+  useEffect(() => {
+    const unlisten = navigate((_, action) => {
+      if (action === "POP") {
+        setRedirectLoading(true);
+      }
+    });
+    return unlisten;
+  }, [navigate, setRedirectLoading]);
+
+  // Fetch doctors on load
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
         const token = localStorage.getItem("jwtToken");
         if (!token) throw new Error("No token found. Please login.");
 
-        const docRes = await axios.get("http://localhost:8000/api/v1/doctors", {
+        const res = await axios.get("http://localhost:8000/api/v1/doctors", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const doctorNames = docRes.data.content.map((doc) => doc.name);
 
+        const doctorNames = res.data.content.map((doc) => doc.name);
         setDoctors(doctorNames);
         setLoading(false);
       } catch (err) {
@@ -58,12 +72,17 @@ const BookAppointmentByAdmin = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      toast.success("Appointment booked successfully!", { autoClose: 3000, theme: "colored" });
-      setTimeout(() => navigate("/admin-dashboard/appointments"), 1500);
+      toast.success("Appointment booked successfully!", {
+        autoClose: 3000,
+        theme: "colored",
+      });
+
+      redirect("/admin-dashboard/appointments", 1000);
     } catch (err) {
       console.error(err);
       const msg =
-        err.response?.data?.message || "Failed to book appointment. Please try again.";
+        err.response?.data?.message ||
+        "Failed to book appointment. Please try again.";
       toast.error(msg, { autoClose: 3000, theme: "colored" });
     }
   };
@@ -72,10 +91,28 @@ const BookAppointmentByAdmin = () => {
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg overflow-hidden relative">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 z-20">
+        <button
+          onClick={() => redirect("/admin-dashboard/appointments", 500)}
+          className="flex items-center text-gray-700 dark:text-white font-semibold hover:text-gray-900 dark:hover:text-gray-300"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back
+        </button>
+      </div>
+
+      {/* Loader overlay during redirect or back/forward navigation */}
+      {redirectLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <Loader />
+        </div>
+      )}
+
       <ToastContainer />
       <div className="text-2xl py-4 px-6 bg-gray-900 text-white text-center font-bold uppercase">
-        Book Appointment (Admin/Staff)
+        Book Appointment
       </div>
       <form className="py-4 px-6" onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -133,7 +170,9 @@ const BookAppointmentByAdmin = () => {
           >
             <option value="">Select doctor</option>
             {doctors.map((docName, idx) => (
-              <option key={idx} value={docName}>{docName}</option>
+              <option key={idx} value={docName}>
+                {docName}
+              </option>
             ))}
           </select>
         </div>
@@ -150,7 +189,9 @@ const BookAppointmentByAdmin = () => {
             required
           >
             {statuses.map((status) => (
-              <option key={status} value={status}>{status}</option>
+              <option key={status} value={status}>
+                {status}
+              </option>
             ))}
           </select>
         </div>

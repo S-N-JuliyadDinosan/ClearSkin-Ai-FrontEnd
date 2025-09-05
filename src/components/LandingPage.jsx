@@ -48,13 +48,13 @@ const LandingPage = () => {
         </div>
 
         {/* Navigation Links */}
-        <nav className="hidden sm:inline-block">
+        <nav className="hidden sm:inline-block ml-55">
           <ul className="flex gap-3 md:gap-5 lg:gap-10">
-            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/about')}>ABOUT</li>
-            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/services')}>SERVICES</li>
-            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/technologies')}>TECHNOLOGIES</li>
+            {/* <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/about')}>ABOUT</li> */}
+            {/* <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/services')}>SERVICES</li> */}
+            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/doctors')}>Our Doctors</li>
             <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/products')}>Products</li>
-            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/how-to')}>HOW TO!!!!</li>
+            <li className="uppercase font-bold text-s text-white cursor-pointer" onClick={() => redirect('/how-to-do')}>HOW TO!!!!</li>
           </ul>
         </nav>
 

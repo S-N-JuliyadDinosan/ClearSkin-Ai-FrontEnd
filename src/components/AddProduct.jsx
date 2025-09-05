@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRedirectWithLoader } from "./useRedirectWithLoader";
 import Loader from "./Loader";
+import { ArrowLeft } from "lucide-react"; // back icon
 
 const AddProduct = () => {
   const [formData, setFormData] = useState({
@@ -33,9 +34,7 @@ const AddProduct = () => {
     setSaving(true);
 
     try {
-      // Get token from localStorage
       const token = localStorage.getItem("jwtToken");
-
       if (!token) {
         toast.error("You must be logged in as admin to add a product.", {
           position: "top-right",
@@ -52,9 +51,9 @@ const AddProduct = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // <-- send JWT token
+            Authorization: `Bearer ${token}`,
           },
-          withCredentials: true, // optional if your backend uses cookies
+          withCredentials: true,
         }
       );
 
@@ -89,6 +88,17 @@ const AddProduct = () => {
 
   return (
     <div className="relative bg-gray-100 dark:bg-gray-900 min-h-screen flex justify-center items-center">
+      {/* Back Button */}
+      <div className="absolute top-6 left-6 z-20">
+        <button
+          onClick={() => redirect("/admin-dashboard/products", 500)}
+          className="flex items-center text-gray-700 dark:text-white font-semibold hover:text-gray-900 dark:hover:text-gray-300"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back
+        </button>
+      </div>
+
       {isLoading && <Loader />}
       <div className={isLoading ? "opacity-30 pointer-events-none" : ""}>
         <div className="w-full max-w-3xl mx-auto p-8">
@@ -98,6 +108,7 @@ const AddProduct = () => {
             </h1>
 
             <form onSubmit={handleSubmit}>
+              {/* Product Info Form Fields */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-700 dark:text-white mb-2">
                   Product Information

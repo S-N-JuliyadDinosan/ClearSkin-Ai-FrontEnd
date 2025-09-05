@@ -5,9 +5,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "react-router-dom"; // assume you pass productId in route
 import { useRedirectWithLoader } from "./useRedirectWithLoader";
 import Loader from "./Loader";
+import { ArrowLeft } from "lucide-react"; // back icon
 
 const EditProduct = () => {
-  const { id } = useParams(); // productId from route like /edit-product/:id
+  const { id } = useParams();
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
@@ -37,19 +38,16 @@ const EditProduct = () => {
     fetchProduct();
   }, [id]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Delete image handler
   const handleDeleteImage = () => {
     setFormData((prev) => ({ ...prev, productImageLink: "" }));
     toast.info("Image removed. Please add a new one.");
   };
 
-  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -76,6 +74,17 @@ const EditProduct = () => {
 
   return (
     <div className="relative bg-gray-100 dark:bg-gray-900 min-h-screen flex justify-center items-center">
+      {/* Back Button */}
+      <div className="absolute top-6 left-6 z-20">
+        <button
+          onClick={() => redirect("/admin-dashboard/products", 500)}
+          className="flex items-center text-gray-700 dark:text-white font-semibold hover:text-gray-900 dark:hover:text-gray-300"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back
+        </button>
+      </div>
+
       {isLoading && <Loader />}
 
       <div className={isLoading ? "opacity-30 pointer-events-none" : ""}>

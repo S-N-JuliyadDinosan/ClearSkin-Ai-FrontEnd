@@ -1,10 +1,15 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 // Public pages
 import Login from "./components/Login"
 import LandingPage from './components/LandingPage'
 import RegisterUser from './components/RegisterUser'
+import HowToDo from './components/HowToDo'
+import Doctors from './components/Doctors'
+import OurDoctors from './components/OurDoctors'
 
 // User features
 import FaceImageUpload from './components/FaceImageUpload'
@@ -16,6 +21,8 @@ import EditAppointmentByUser from './components/EditAppointmentByUser'
 import AnalysisHistory from './components/AnalysisHistory'
 import AnalysisView from './components/AnalysisView'
 import UserDashboardOverview from './components/UserDashboardOverview'
+import UserProfile from './components/UserProfile'
+import AnalysisViewUser from './components/AnalysisViewUser'
 
 // Admin features
 import AdminDashboard from './components/AdminDashboard'
@@ -25,6 +32,12 @@ import Product from './components/Product'
 import ProductManage from './components/ProductManage'
 import AddProduct from './components/AddProduct'
 import EditProduct from './components/EditProduct'
+import AdminManageAppointments from './components/AdminManageAppointments'
+import BookAppointmentByAdmin from './components/BookAppointmentByAdmin'
+import AdminAnalysisHistory from './components/AdminAnalysisHistory'
+import ManageDoctors from './components/ManageDoctors'
+import AddDoctor from './components/AddDoctor'
+import EditDoctor from './components/EditDoctor'
 
 // Utilities
 import ProtectedRoute from './components/ProtectedRoute'
@@ -32,8 +45,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 // Dashboard home page (inside admin layout)
 const DashboardHome = () => (
   <div className="p-6">
-    <h2 className="text-2xl font-bold">Admin Overview</h2>
-    <p className="mt-2 text-gray-600">Charts, stats and quick summary go here.</p>
+    {/* Admin Overview Placeholder */}
   </div>
 )
 
@@ -45,6 +57,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegisterUser />} />
+        <Route path="/how-to-do" element={<HowToDo />} />
+        <Route path="/doctors" element={<Doctors />} />
 
         {/* Protected Routes */}
         <Route path="/face-upload" element={
@@ -69,11 +83,13 @@ function App() {
           <Route index element={<UserDashboardOverview />} />
 
           <Route path="analysis-history/user" element={<AnalysisHistory />} />
-          <Route path="analysis-view/user" element={<AnalysisView />} /> 
+          <Route path="analysis-view/user" element={<AnalysisViewUser />} /> 
 
           <Route path="book-appointment/user" element={<BookAppointmentByUser />} />
           <Route path="update-appointment/user/:appointmentId" element={<EditAppointmentByUser />} />
           <Route path="user-appointments" element={<UserAppointments />} />
+          <Route path="our-doctors" element={<OurDoctors />} />
+          <Route path="user-profile" element={<UserProfile />} />
         </Route>
 
         {/* ADMIN DASHBOARD */}
@@ -85,6 +101,22 @@ function App() {
             <Route path="user-register" element={<AdminUserRegister />} />
           </Route>  
 
+          <Route path="analysis-history">
+            <Route index element={<AdminAnalysisHistory />} />
+            <Route path="analysis-view/user" element={<AnalysisView />} />
+          </Route>
+
+          <Route path="appointments">
+            <Route index element={<AdminManageAppointments />} />
+            <Route path="create-appointment" element={<BookAppointmentByAdmin />} />
+          </Route>
+
+          <Route path="manage-doctors">
+            <Route index element={<ManageDoctors />} />
+            <Route path="add" element={<AddDoctor />} /> 
+            <Route path="edit/:doctorId" element={<EditDoctor />} /> 
+          </Route>
+
           <Route path="products">
             <Route index element={<ProductManage />} />
             <Route path="add" element={<AddProduct />} />
@@ -92,6 +124,15 @@ function App() {
           </Route>
         </Route>
       </Routes>
+
+      {/* ToastContainer at App root */}
+      <ToastContainer 
+        position="top-right"
+        theme="colored"
+        autoClose={2000}
+        pauseOnHover={false}
+        newestOnTop
+      />
     </Router>
   )
 }

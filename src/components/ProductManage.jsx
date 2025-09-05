@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useRedirectWithLoader } from "./useRedirectWithLoader";
 import Loader from "./Loader";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,17 +8,14 @@ const ProductManage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-
   const [pageSize, setPageSize] = useState(() => {
     return parseInt(localStorage.getItem("pageSize")) || 8;
   });
-
   const [totalPages, setTotalPages] = useState(1);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const { loading: redirectLoading, redirect } = useRedirectWithLoader();
-
+  // Fetch products
   const fetchProducts = async (pageNumber = page, size = pageSize) => {
     setLoading(true);
     try {
@@ -39,7 +35,7 @@ const ProductManage = () => {
   };
 
   useEffect(() => {
-    redirect(window.location.pathname, 600, () => fetchProducts(page, pageSize));
+    fetchProducts(page, pageSize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize]);
 
@@ -68,12 +64,10 @@ const ProductManage = () => {
     }
   };
 
-  const isLoading = loading || redirectLoading;
-
   return (
     <div className="relative min-h-screen flex flex-col bg-gray-800">
       {/* Fullscreen Loader */}
-      {isLoading && (
+      {loading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50">
           <Loader />
         </div>
@@ -82,7 +76,7 @@ const ProductManage = () => {
       <ToastContainer position="top-right" theme="colored" />
 
       {/* Show content only when not loading */}
-      {!isLoading && (
+      {!loading && (
         <>
           {/* Confirm Delete Modal */}
           {showConfirm && selectedProduct && (
@@ -123,7 +117,7 @@ const ProductManage = () => {
           <nav className="bg-white/25 sticky top-0 z-50 px-6 py-4 backdrop-blur-lg flex justify-between items-center">
             <button
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold"
-              onClick={() => redirect("/admin-dashboard/products/add", 1200)}
+              onClick={() => window.location.assign("/admin-dashboard/products/add")}
             >
               Add Product
             </button>
@@ -159,9 +153,8 @@ const ProductManage = () => {
                       <button
                         className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm"
                         onClick={() =>
-                          redirect(
-                            `/admin-dashboard/products/edit/${product.productId}`,
-                            1200
+                          window.location.assign(
+                            `/admin-dashboard/products/edit/${product.productId}`
                           )
                         }
                       >

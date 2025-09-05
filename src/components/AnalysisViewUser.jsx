@@ -11,7 +11,7 @@ const severityColors = {
   severe: "text-red-800 bg-red-100",
 };
 
-const AnalysisView = () => {
+const AnalysisViewUser = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -86,7 +86,7 @@ const AnalysisView = () => {
       {/* Back Button */}
       <div className="absolute top-6 left-6 z-20">
         <button
-          onClick={() => redirect("/admin-dashboard/analysis-history", 500)}
+          onClick={() => redirect("/user-dashboard/analysis-history/user", 500)}
           className="flex items-center text-gray-700 dark:text-white font-semibold hover:text-gray-900 dark:hover:text-gray-300"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
@@ -134,4 +134,4 @@ const AnalysisView = () => {
   );
 };
 
-export default AnalysisView;
+export default AnalysisViewUser;

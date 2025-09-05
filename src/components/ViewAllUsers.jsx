@@ -3,7 +3,6 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import { FaTrash, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useRedirectWithLoader } from "./useRedirectWithLoader";
 import Loader from "./Loader";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,18 +20,15 @@ const ViewAllUsers = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   const navigate = useNavigate();
-  const { loading: redirectLoading, redirect } = useRedirectWithLoader();
-
   const token = localStorage.getItem("jwtToken");
 
-  // ✅ Toastify options (same style as Login)
   const toastOptions = {
     position: "top-right",
     autoClose: 3000,
     theme: "colored",
   };
 
-  // Fetch users with loader
+  // Fetch users
   const fetchUsers = async (pageNo = 0, pageSize = 10) => {
     try {
       setLoading(true);
@@ -57,7 +53,6 @@ const ViewAllUsers = () => {
     }
   };
 
-  // Search users with loader
   const searchUsers = async (query) => {
     try {
       setLoading(true);
@@ -85,17 +80,15 @@ const ViewAllUsers = () => {
   };
 
   useEffect(() => {
-    if (!isSearching) {
-      redirect(window.location.pathname, 600, () => fetchUsers(page, size));
-    }
+    if (!isSearching) fetchUsers(page, size);
   }, [page, size, isSearching]);
 
   const handleSearch = () => {
     if (searchTerm.trim() === "") {
       setIsSearching(false);
-      redirect(window.location.pathname, 600, () => fetchUsers(0, size));
+      fetchUsers(0, size);
     } else {
-      redirect(window.location.pathname, 600, () => searchUsers(searchTerm.trim()));
+      searchUsers(searchTerm.trim());
     }
   };
 
@@ -108,46 +101,34 @@ const ViewAllUsers = () => {
     setShowConfirm(true);
   };
 
-const handleDeleteUser = async () => {
-  if (!selectedUser) return;
-
-  try {
-    // ✅ Hide confirmation modal immediately
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
     setShowConfirm(false);
+    try {
+      setDeleteLoading(true);
+      if (!token) throw new Error("No token found. Please login.");
+      const decoded = jwtDecode(token);
+      if (decoded.role !== "ADMIN" && decoded.role !== "STAFF")
+        throw new Error("You are not authorized to delete users.");
 
-    setDeleteLoading(true);
-    if (!token) throw new Error("No token found. Please login.");
-    const decoded = jwtDecode(token);
-    if (decoded.role !== "ADMIN" && decoded.role !== "STAFF")
-      throw new Error("You are not authorized to delete users.");
+      await axios.delete(
+        `http://localhost:8000/api/v1/user/${selectedUser.id || selectedUser.userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    await axios.delete(
-      `http://localhost:8000/api/v1/user/${selectedUser.id || selectedUser.userId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    // Show success toast
-    toast.success("User deleted successfully", toastOptions);
-
-    // ✅ Show loader for 1 second before refreshing
-    redirect(window.location.pathname, 1000, () => {
+      toast.success("User deleted successfully", toastOptions);
       setSelectedUser(null);
-      if (isSearching) {
-        searchUsers(searchTerm.trim());
-      } else {
-        fetchUsers(page, size);
-      }
-    });
-  } catch (err) {
-    toast.error(err.response?.data?.message || err.message || "Failed to delete user", toastOptions);
-    setShowConfirm(true); // if deletion failed, show modal again
-  } finally {
-    setDeleteLoading(false);
-  }
-};
+      if (isSearching) searchUsers(searchTerm.trim());
+      else fetchUsers(page, size);
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || "Failed to delete user", toastOptions);
+      setShowConfirm(true);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
-
-  const isLoading = redirectLoading || loading || deleteLoading;
+  const isLoading = loading || deleteLoading;
 
   return (
     <div className="container mx-auto px-4 py-8 bg-gray-100 min-h-screen">
